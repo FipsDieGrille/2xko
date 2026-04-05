@@ -1,17 +1,86 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-bg: #0f0f1a;
-  --color-surface: #1a1a2e;
-  --color-surface-light: #252540;
-  --color-border: #333355;
+  --color-bg: #080810;
+  --color-surface: #12121e;
+  --color-surface-elevated: #1a1a2e;
+  --color-border: #222244;
   --color-accent: #6c5ce7;
-  --color-text: #e0e0f0;
-  --color-text-muted: #8888aa;
+  --color-accent-light: #a855f7;
+  --color-text: #eeeef4;
+  --color-text-muted: #7777aa;
+  --font-heading: var(--font-exo2);
+  --font-body: var(--font-inter);
 }
 
 body {
-  background-color: #0f0f1a;
-  color: #e0e0f0;
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #080810;
+  color: #eeeef4;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Glass surface */
+.glass {
+  background: rgba(8, 8, 16, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Accent glow */
+.glow-accent {
+  box-shadow: 0 0 20px rgba(108, 92, 231, 0.25);
+}
+
+.glow-accent-lg {
+  box-shadow: 0 0 40px rgba(108, 92, 231, 0.3);
+}
+
+/* Gradient accent border (bottom) */
+.gradient-border-b {
+  border-image: linear-gradient(to right, #6c5ce7, transparent) 1;
+  border-bottom-width: 1px;
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(108, 92, 231, 0.2);
+  border-color: #6c5ce7 !important;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #6c5ce7, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* CTA button */
+.btn-primary {
+  background: linear-gradient(135deg, #6c5ce7, #a855f7);
+  color: #fff;
+  font-weight: 700;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  box-shadow: 0 0 24px rgba(108, 92, 231, 0.4);
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 36px rgba(108, 92, 231, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Heading font utility */
+.font-heading {
+  font-family: var(--font-exo2), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Hero background overlay */
+.hero-gradient {
+  background: radial-gradient(ellipse at 50% 0%, rgba(108, 92, 231, 0.12) 0%, transparent 60%),
+              linear-gradient(180deg, #080810 0%, #0c0c18 100%);
 }

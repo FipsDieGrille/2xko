@@ -29,7 +29,7 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
   return (
     <div>
       {/* Filter bar */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-xl" style={{ backgroundColor: '#12121e', border: '1px solid #222244' }}>
         <FilterGroup label="Meter">
           {(['all', '0', '1', '2+'] as MeterFilter[]).map((v) => (
             <Chip key={v} active={meter === v} onClick={() => setMeter(v)}>
@@ -40,7 +40,7 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
         <FilterGroup label="Assist">
           {(['all', 'no', 'yes'] as AssistFilter[]).map((v) => (
             <Chip key={v} active={assist === v} onClick={() => setAssist(v)}>
-              {v === 'all' ? 'Any' : v === 'no' ? 'No assist' : 'With assist'}
+              {v === 'all' ? 'Any' : v === 'no' ? 'Solo' : 'Assist'}
             </Chip>
           ))}
         </FilterGroup>
@@ -60,14 +60,16 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
         </FilterGroup>
       </div>
 
-      <p className="text-xs mb-4" style={{ color: '#8888aa' }}>
+      <p className="text-xs mb-4" style={{ color: '#7777aa' }}>
         {filtered.length} combo{filtered.length !== 1 ? 's' : ''}
       </p>
 
       {filtered.length === 0 ? (
-        <p className="text-center py-16" style={{ color: '#8888aa' }}>No combos match these filters.</p>
+        <p className="text-center py-16" style={{ color: '#7777aa' }}>No combos match these filters.</p>
       ) : (
-        filtered.map((c) => <ComboCard key={c.id} combo={c} />)
+        <div className="flex flex-col gap-3">
+          {filtered.map((c) => <ComboCard key={c.id} combo={c} />)}
+        </div>
       )}
     </div>
   );
@@ -75,8 +77,8 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
 
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#8888aa' }}>{label}</span>
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#7777aa' }}>{label}</span>
       <div className="flex gap-1">{children}</div>
     </div>
   );
@@ -86,11 +88,12 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   return (
     <button
       onClick={onClick}
-      className="text-xs px-3 py-1 rounded-full border font-medium transition-colors"
+      className="text-xs px-3 py-1 rounded-full font-medium transition-all"
       style={{
-        backgroundColor: active ? '#6c5ce7' : '#1a1a2e',
-        borderColor: active ? '#6c5ce7' : '#333355',
-        color: active ? '#fff' : '#8888aa',
+        backgroundColor: active ? '#6c5ce7' : 'transparent',
+        border: `1px solid ${active ? '#6c5ce7' : '#222244'}`,
+        color: active ? '#fff' : '#7777aa',
+        boxShadow: active ? '0 0 12px #6c5ce730' : 'none',
       }}
     >
       {children}

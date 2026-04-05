@@ -21,25 +21,32 @@ export default async function CharacterPage({
   const combos = getCombos(characterId);
 
   return (
-    <main className="min-h-screen" style={{ backgroundColor: '#0f0f1a' }}>
-      <div className="max-w-3xl mx-auto px-4 py-8">
+    <main className="min-h-screen">
+      <div className="max-w-3xl mx-auto px-6 py-8">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm mb-6" style={{ color: '#7777aa' }}>
+          <Link href="/roster" className="hover:text-white transition-colors">Roster</Link>
+          <span>/</span>
+          <span style={{ color: '#eeeef4' }}>{character.name}</span>
+        </nav>
+
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/roster" className="text-sm font-semibold hover:underline" style={{ color: '#6c5ce7' }}>
-            ‹ Roster
-          </Link>
           {character.imagePath && (
             <Image
               src={character.imagePath}
               alt={character.name}
-              width={48}
-              height={48}
+              width={64}
+              height={64}
               className="rounded-lg object-cover"
+              style={{ border: '2px solid #222244' }}
             />
           )}
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#e0e0f0' }}>{character.name}</h1>
-            <p className="text-xs" style={{ color: '#8888aa' }}>{combos.length} combo{combos.length !== 1 ? 's' : ''}</p>
+            <h1 className="font-heading text-2xl font-bold" style={{ color: '#eeeef4' }}>{character.name}</h1>
+            <p className="text-sm" style={{ color: '#7777aa' }}>
+              {combos.length} combo{combos.length !== 1 ? 's' : ''}
+            </p>
           </div>
         </div>
 

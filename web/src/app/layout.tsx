@@ -1,6 +1,20 @@
 import type { Metadata } from 'next';
+import { Exo_2, Inter } from 'next/font/google';
 import './globals.css';
 import { Nav } from '@/components/Nav';
+import { Footer } from '@/components/Footer';
+
+const exo2 = Exo_2({
+  subsets: ['latin'],
+  variable: '--font-exo2',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: '2XKO Hub',
@@ -9,10 +23,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full" style={{ backgroundColor: '#0f0f1a', color: '#e0e0f0' }}>
+    <html lang="en" className={`h-full ${exo2.variable} ${inter.variable}`}>
+      <body className="min-h-full flex flex-col" style={{ backgroundColor: '#080810', color: '#eeeef4' }}>
         <Nav />
-        {children}
+        <div className="flex-1">{children}</div>
+        <Footer />
       </body>
     </html>
   );

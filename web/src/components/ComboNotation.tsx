@@ -15,15 +15,12 @@ const TOKEN_MAP: Record<string, string> = {
   '1': '/icons/1.png', '11': '/icons/11.png', '3': '/icons/3.png', '33': '/icons/33.png',
 };
 
-const SEPARATORS = ['>', '~', ',', 'dl.', 'j'];
-
 function tokenize(notation: string): string[] {
   const tokens: string[] = [];
   let i = 0;
   while (i < notation.length) {
     if (notation[i] === ' ') { i++; continue; }
 
-    // brackets: [S1], {S1} etc — strip and process inner
     if (notation[i] === '[' || notation[i] === '{') {
       const close = notation[i] === '[' ? ']' : '}';
       const end = notation.indexOf(close, i);
@@ -34,7 +31,6 @@ function tokenize(notation: string): string[] {
       }
     }
 
-    // Try longest match in TOKEN_MAP (up to 4 chars)
     let matched = false;
     for (let len = 4; len >= 1; len--) {
       const candidate = notation.slice(i, i + len);
@@ -46,7 +42,6 @@ function tokenize(notation: string): string[] {
       }
     }
     if (!matched) {
-      // separator or text
       tokens.push(notation[i]);
       i++;
     }
@@ -66,19 +61,18 @@ export function ComboNotation({ notation }: { notation: string }) {
 
         if (icon) {
           return (
-            <span key={i} className={`inline-flex items-center ${isHold ? 'opacity-70 ring-1 ring-white/30 rounded' : ''}`}>
-              <Image src={icon} alt={stripped} width={22} height={22} className="inline-block" />
+            <span key={i} className={`inline-flex items-center ${isHold ? 'opacity-70 ring-1 ring-white/20 rounded' : ''}`}>
+              <Image src={icon} alt={stripped} width={24} height={24} className="inline-block" />
             </span>
           );
         }
 
-        // separator or text
         const sep = ['>','~',','].includes(token) || token.startsWith('dl') || token === 'j';
         return (
           <span
             key={i}
             className="text-xs font-mono"
-            style={{ color: sep ? '#8888aa' : '#e0e0f0' }}
+            style={{ color: sep ? '#7777aa' : '#eeeef4' }}
           >
             {token}
           </span>
