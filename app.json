@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "2XKO Coach",
+    "slug": "2xko-coach",
+    "version": "1.0.0",
+    "scheme": "2xko-coach",
+    "platforms": ["ios", "android"],
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
