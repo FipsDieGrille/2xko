@@ -14,8 +14,8 @@ import { ComboNotation } from '../../src/components/ComboNotation';
 import { colors } from '../../src/theme';
 
 type MeterFilter = 'all' | '0' | '1' | '2+';
-type AssistFilter = 'all' | 'no' | 'yes';
-type PositionFilter = 'all' | 'anywhere' | 'corner' | 'midscreen';
+type AssistFilter = string;
+type PositionFilter = 'all' | 'corner' | 'midscreen';
 type DifficultyFilter = 'all' | 'beginner' | 'intermediate' | 'advanced';
 
 const DIFFICULTY_LABEL: Record<string, string> = {
@@ -50,9 +50,14 @@ export default function ComboListScreen() {
   }, [characterId, navigation, router]);
 
   const [meterFilter, setMeterFilter] = useState<MeterFilter>('all');
-  const [assistFilter, setAssistFilter] = useState<AssistFilter>('all');
+  const [assistFilter, setAssistFilter] = useState<string>('all');
   const [positionFilter, setPositionFilter] = useState<PositionFilter>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>('all');
+
+  const partnerOptions = useMemo(() => {
+    const partners = Array.from(new Set(allCombos.map(c => c.partner).filter(Boolean))) as string[];
+    return partners.sort();
+  }, [allCombos]);
 
   // Collect unique starters for filter chips
   const starters = useMemo(() => {
@@ -66,9 +71,9 @@ export default function ComboListScreen() {
       if (meterFilter === '0' && c.meter !== 0) return false;
       if (meterFilter === '1' && c.meter !== 1) return false;
       if (meterFilter === '2+' && c.meter < 2) return false;
-      if (assistFilter === 'yes' && !c.hasAssist) return false;
-      if (assistFilter === 'no' && c.hasAssist) return false;
-      if (positionFilter !== 'all' && c.position !== positionFilter) return false;
+      if (assistFilter === 'solo' && c.hasAssist) return false;
+      if (assistFilter !== 'all' && assistFilter !== 'solo' && c.partner !== assistFilter) return false;
+      if (positionFilter !== 'all' && c.position !== positionFilter && c.position !== 'anywhere') return false;
       if (difficultyFilter !== 'all' && c.difficulty !== difficultyFilter) return false;
       if (starterFilter !== 'all' && c.starter !== starterFilter) return false;
       return true;
@@ -101,21 +106,17 @@ export default function ComboListScreen() {
         <Divider />
 
         <FilterGroup label="Assist">
-          {(['all', 'no', 'yes'] as AssistFilter[]).map((v) => (
-            <Chip
-              key={v}
-              label={v === 'all' ? 'Any' : v === 'no' ? 'No assist' : 'With assist'}
-              active={assistFilter === v}
-              color={accentColor}
-              onPress={() => setAssistFilter(v)}
-            />
+          <Chip label="Any" active={assistFilter === 'all'} color={accentColor} onPress={() => setAssistFilter('all')} />
+          <Chip label="Solo" active={assistFilter === 'solo'} color={accentColor} onPress={() => setAssistFilter('solo')} />
+          {partnerOptions.map(p => (
+            <Chip key={p} label={p} active={assistFilter === p} color={accentColor} onPress={() => setAssistFilter(p)} />
           ))}
         </FilterGroup>
 
         <Divider />
 
         <FilterGroup label="Position">
-          {(['all', 'anywhere', 'corner', 'midscreen'] as PositionFilter[]).map((v) => (
+          {(['all', 'corner', 'midscreen'] as PositionFilter[]).map((v) => (
             <Chip
               key={v}
               label={v === 'all' ? 'Any' : v.charAt(0).toUpperCase() + v.slice(1)}
@@ -178,16 +179,18 @@ function ComboCard({ combo }: { combo: ComboEntry }) {
     : `${combo.damage}`;
 
   const meterLabel = combo.meter === 0 ? '0 bars' : combo.meter === 1 ? '1 bar' : `${combo.meter} bars`;
-  const posLabel = combo.position === 'anywhere' ? 'Any' : combo.position.charAt(0).toUpperCase() + combo.position.slice(1);
-  const diffColor = DIFFICULTY_COLOR[combo.difficulty];
+  const posLabel = combo.position === 'anywhere' ? 'Anywhere' : combo.position.charAt(0).toUpperCase() + combo.position.slice(1);
+  const diffColor = combo.difficulty ? DIFFICULTY_COLOR[combo.difficulty] : '#444466';
 
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.comboName}>{combo.name}</Text>
-        <View style={[styles.diffBadge, { borderColor: diffColor }]}>
-          <Text style={[styles.diffText, { color: diffColor }]}>{DIFFICULTY_LABEL[combo.difficulty]}</Text>
-        </View>
+        {combo.difficulty && (
+          <View style={[styles.diffBadge, { borderColor: diffColor }]}>
+            <Text style={[styles.diffText, { color: diffColor }]}>{DIFFICULTY_LABEL[combo.difficulty]}</Text>
+          </View>
+        )}
       </View>
 
       <ComboNotation notation={combo.notation} />
@@ -195,8 +198,9 @@ function ComboCard({ combo }: { combo: ComboEntry }) {
       <View style={styles.badges}>
         <Badge icon="💥" label={`${dmg} dmg`} />
         <Badge icon="⚡" label={meterLabel} />
-        <Badge icon="📍" label={posLabel} />
+        {combo.position !== 'anywhere' && <Badge icon="📍" label={posLabel} />}
         {combo.hasAssist && <Badge icon="🤝" label={combo.partner ?? 'Assist'} />}
+        {combo.fuse && <Badge icon="🔗" label={combo.fuse} />}
         {combo.meterGain != null && <Badge icon="📈" label={`+${combo.meterGain} meter`} />}
       </View>
 

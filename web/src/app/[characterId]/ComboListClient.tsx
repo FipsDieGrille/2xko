@@ -5,26 +5,37 @@ import { ComboEntry } from '../../../../src/combos/types';
 import { ComboCard } from '@/components/ComboCard';
 
 type MeterFilter = 'all' | '0' | '1' | '2+';
-type AssistFilter = 'all' | 'no' | 'yes';
-type PositionFilter = 'all' | 'anywhere' | 'corner' | 'midscreen';
+type PositionFilter = 'all' | 'corner' | 'midscreen';
 type DifficultyFilter = 'all' | 'beginner' | 'intermediate' | 'advanced';
 
 export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
   const [meter, setMeter] = useState<MeterFilter>('all');
-  const [assist, setAssist] = useState<AssistFilter>('all');
+  const [assist, setAssist] = useState<string>('all');
   const [position, setPosition] = useState<PositionFilter>('all');
   const [difficulty, setDifficulty] = useState<DifficultyFilter>('all');
+  const [fuse, setFuse] = useState<string>('all');
+
+  const partnerOptions = useMemo(() => {
+    const partners = Array.from(new Set(combos.map(c => c.partner).filter(Boolean))) as string[];
+    return partners.sort();
+  }, [combos]);
+
+  const fuseOptions = useMemo(() => {
+    const fuses = Array.from(new Set(combos.map(c => c.fuse).filter(Boolean))) as string[];
+    return fuses.sort();
+  }, [combos]);
 
   const filtered = useMemo(() => combos.filter((c) => {
     if (meter === '0' && c.meter !== 0) return false;
     if (meter === '1' && c.meter !== 1) return false;
     if (meter === '2+' && c.meter < 2) return false;
-    if (assist === 'yes' && !c.hasAssist) return false;
-    if (assist === 'no' && c.hasAssist) return false;
-    if (position !== 'all' && c.position !== position) return false;
+    if (assist === 'solo' && c.hasAssist) return false;
+    if (assist !== 'all' && assist !== 'solo' && c.partner !== assist) return false;
+    if (position !== 'all' && c.position !== position && c.position !== 'anywhere') return false;
     if (difficulty !== 'all' && c.difficulty !== difficulty) return false;
+    if (fuse !== 'all' && c.fuse !== fuse) return false;
     return true;
-  }), [combos, meter, assist, position, difficulty]);
+  }), [combos, meter, assist, position, difficulty, fuse]);
 
   return (
     <div>
@@ -38,14 +49,14 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
           ))}
         </FilterGroup>
         <FilterGroup label="Assist">
-          {(['all', 'no', 'yes'] as AssistFilter[]).map((v) => (
-            <Chip key={v} active={assist === v} onClick={() => setAssist(v)}>
-              {v === 'all' ? 'Any' : v === 'no' ? 'Solo' : 'Assist'}
-            </Chip>
+          <Chip active={assist === 'all'} onClick={() => setAssist('all')}>Any</Chip>
+          <Chip active={assist === 'solo'} onClick={() => setAssist('solo')}>Solo</Chip>
+          {partnerOptions.map(p => (
+            <Chip key={p} active={assist === p} onClick={() => setAssist(p)}>{p}</Chip>
           ))}
         </FilterGroup>
         <FilterGroup label="Position">
-          {(['all', 'anywhere', 'corner', 'midscreen'] as PositionFilter[]).map((v) => (
+          {(['all', 'corner', 'midscreen'] as PositionFilter[]).map((v) => (
             <Chip key={v} active={position === v} onClick={() => setPosition(v)}>
               {v === 'all' ? 'Any' : v.charAt(0).toUpperCase() + v.slice(1)}
             </Chip>
@@ -58,6 +69,14 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
             </Chip>
           ))}
         </FilterGroup>
+        {fuseOptions.length > 0 && (
+          <FilterGroup label="Fuse">
+            <Chip active={fuse === 'all'} onClick={() => setFuse('all')}>Any</Chip>
+            {fuseOptions.map(f => (
+              <Chip key={f} active={fuse === f} onClick={() => setFuse(f)}>{f}</Chip>
+            ))}
+          </FilterGroup>
+        )}
       </div>
 
       <p className="text-xs mb-4" style={{ color: '#7777aa' }}>

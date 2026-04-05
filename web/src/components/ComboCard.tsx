@@ -23,8 +23,8 @@ export function ComboCard({ combo }: { combo: ComboEntry }) {
     : `${combo.damage}`;
 
   const meterLabel = combo.meter === 0 ? '0 bars' : combo.meter === 1 ? '1 bar' : `${combo.meter} bars`;
-  const posLabel = combo.position === 'anywhere' ? 'Any' : combo.position.charAt(0).toUpperCase() + combo.position.slice(1);
-  const diffColor = DIFFICULTY_COLOR[combo.difficulty];
+  const posLabel = combo.position === 'anywhere' ? 'Anywhere' : combo.position.charAt(0).toUpperCase() + combo.position.slice(1);
+  const diffColor = combo.difficulty ? DIFFICULTY_COLOR[combo.difficulty] : '#444466';
 
   return (
     <div
@@ -37,12 +37,14 @@ export function ComboCard({ combo }: { combo: ComboEntry }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
           <span className="font-heading font-bold text-sm" style={{ color: '#eeeef4' }}>{combo.name}</span>
-          <span
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
-            style={{ color: diffColor, backgroundColor: `${diffColor}15`, border: `1px solid ${diffColor}40` }}
-          >
-            {DIFFICULTY_LABEL[combo.difficulty]}
-          </span>
+          {combo.difficulty && (
+            <span
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+              style={{ color: diffColor, backgroundColor: `${diffColor}15`, border: `1px solid ${diffColor}40` }}
+            >
+              {DIFFICULTY_LABEL[combo.difficulty]}
+            </span>
+          )}
         </div>
 
         <ComboNotation notation={combo.notation} />
@@ -50,8 +52,9 @@ export function ComboCard({ combo }: { combo: ComboEntry }) {
         <div className="flex flex-wrap gap-1.5 mt-2">
           <Badge label={`${dmg} dmg`} />
           <Badge label={`${meterLabel}`} />
-          <Badge label={posLabel} />
+          {combo.position !== 'anywhere' && <Badge label={posLabel} />}
           {combo.hasAssist && <Badge label={combo.partner ?? 'Assist'} accent />}
+          {combo.fuse && <Badge label={combo.fuse} accent />}
           {combo.meterGain != null && <Badge label={`+${combo.meterGain} meter`} />}
         </div>
 
