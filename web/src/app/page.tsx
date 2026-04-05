@@ -1,43 +1,59 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { characters } from '@/lib/characters';
+
+const SECTIONS = [
+  {
+    href: '/roster',
+    label: 'Roster',
+    description: 'Browse every character and their combo lists. Filter by difficulty, meter, position and more.',
+  },
+  {
+    href: '/match-prep',
+    label: 'Match Prep',
+    description: 'Matchup notes, team builder and okizeme setups to get you ready before you play.',
+    soon: true,
+  },
+  {
+    href: '/reference',
+    label: 'Reference',
+    description: 'Frame data and punish finder for every move in the game.',
+    soon: true,
+  },
+];
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen" style={{ backgroundColor: '#0f0f1a' }}>
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-2" style={{ color: '#e0e0f0' }}>2XKO Combos</h1>
-        <p className="mb-10 text-sm" style={{ color: '#8888aa' }}>Select a character to view their combo list</p>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-          {characters.map((c) => (
+    <main className="min-h-screen">
+      <div className="max-w-3xl mx-auto px-6 py-16">
+        <h1 className="text-4xl font-bold mb-3" style={{ color: '#e0e0f0' }}>2XKO Hub</h1>
+        <p className="text-base mb-12" style={{ color: '#8888aa' }}>
+          Community resource for combos, matchups and frame data.
+        </p>
+        <div className="flex flex-col gap-4">
+          {SECTIONS.map(({ href, label, description, soon }) => (
             <Link
-              key={c.id}
-              href={`/${c.id}`}
-              className="group relative rounded-xl overflow-hidden flex flex-col items-center transition-transform hover:scale-105"
-              style={{ backgroundColor: '#1a1a2e', border: '1px solid #333355' }}
+              key={href}
+              href={href}
+              className="flex items-center gap-0 rounded-xl overflow-hidden transition-opacity hover:opacity-80"
+              style={{
+                backgroundColor: '#1a1a2e',
+                border: '1px solid #333355',
+                opacity: soon ? 0.5 : 1,
+                pointerEvents: soon ? 'none' : 'auto',
+              }}
             >
-              {c.imagePath ? (
-                <Image
-                  src={c.imagePath}
-                  alt={c.name}
-                  width={160}
-                  height={160}
-                  className="w-full aspect-square object-cover"
-                />
-              ) : (
-                <div className="w-full aspect-square" style={{ backgroundColor: '#252540' }} />
-              )}
-              <span className="py-2 text-sm font-bold text-center w-full px-1" style={{ color: '#e0e0f0' }}>
-                {c.name}
-              </span>
-              {c.comingSoon && (
-                <span
-                  className="absolute top-2 right-2 text-xs font-bold px-2 py-0.5 rounded"
-                  style={{ backgroundColor: '#6c5ce7', color: '#fff' }}
-                >
-                  Soon
-                </span>
-              )}
+              <div className="w-1 self-stretch" style={{ backgroundColor: '#6c5ce7' }} />
+              <div className="flex-1 px-6 py-5">
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="font-bold text-lg" style={{ color: '#e0e0f0' }}>{label}</span>
+                  {soon && (
+                    <span className="text-xs font-bold px-2 py-0.5 rounded" style={{ backgroundColor: '#6c5ce7', color: '#fff' }}>
+                      Soon
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm" style={{ color: '#8888aa' }}>{description}</p>
+              </div>
+              {!soon && <span className="text-xl pr-5" style={{ color: '#333355' }}>›</span>}
             </Link>
           ))}
         </div>

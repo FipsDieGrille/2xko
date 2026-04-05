@@ -25,8 +25,8 @@ export default async function CharacterPage({
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/" className="text-sm font-semibold hover:underline" style={{ color: '#6c5ce7' }}>
-            ‹ Back
+          <Link href="/roster" className="text-sm font-semibold hover:underline" style={{ color: '#6c5ce7' }}>
+            ‹ Roster
           </Link>
           {character.imagePath && (
             <Image
