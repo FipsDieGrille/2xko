@@ -22,7 +22,6 @@ const SECTIONS = [
     label: 'Reference',
     description: 'Frame data and punish finder for every move in the game.',
     icon: '◈',
-    soon: true,
   },
 ];
 
