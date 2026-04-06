@@ -10,6 +10,11 @@ const MENU = [
     description: 'Characters & combos',
   },
   {
+    route: '/roster?mode=framedata',
+    label: 'Frame Data',
+    description: 'Startup · On hit · On block',
+  },
+  {
     route: '/match-prep',
     label: 'Match Prep',
     description: 'Matchups · Teams · Okizeme',
@@ -17,7 +22,7 @@ const MENU = [
   {
     route: '/reference',
     label: 'Reference',
-    description: 'Frame data · Punish finder',
+    description: 'Punish finder · More tools',
   },
   {
     route: '/patch-notes',

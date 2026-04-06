@@ -14,6 +14,7 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
   const [position, setPosition] = useState<PositionFilter>('all');
   const [difficulty, setDifficulty] = useState<DifficultyFilter>('all');
   const [fuse, setFuse] = useState<string>('all');
+  const [starter, setStarter] = useState<string>('all');
 
   const partnerOptions = useMemo(() => {
     const partners = Array.from(new Set(combos.map(c => c.partner).filter(Boolean))) as string[];
@@ -25,6 +26,10 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
     return fuses.sort();
   }, [combos]);
 
+  const starterOptions = useMemo(() => {
+    return Array.from(new Set(combos.map(c => c.starter))).sort();
+  }, [combos]);
+
   const filtered = useMemo(() => combos.filter((c) => {
     if (meter === '0' && c.meter !== 0) return false;
     if (meter === '1' && c.meter !== 1) return false;
@@ -34,49 +39,80 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
     if (position !== 'all' && c.position !== position && c.position !== 'anywhere') return false;
     if (difficulty !== 'all' && c.difficulty !== difficulty) return false;
     if (fuse !== 'all' && c.fuse !== fuse) return false;
+    if (starter !== 'all' && c.starter !== starter) return false;
     return true;
-  }), [combos, meter, assist, position, difficulty, fuse]);
+  }), [combos, meter, assist, position, difficulty, fuse, starter]);
 
   return (
     <div>
       {/* Filter bar */}
-      <div className="flex flex-wrap gap-4 mb-6 p-4 rounded-xl" style={{ backgroundColor: '#12121e', border: '1px solid #222244' }}>
-        <FilterGroup label="Meter">
-          {(['all', '0', '1', '2+'] as MeterFilter[]).map((v) => (
-            <Chip key={v} active={meter === v} onClick={() => setMeter(v)}>
-              {v === 'all' ? 'Any' : v === '0' ? '0 bars' : v === '1' ? '1 bar' : '2+ bars'}
-            </Chip>
-          ))}
-        </FilterGroup>
-        <FilterGroup label="Assist">
-          <Chip active={assist === 'all'} onClick={() => setAssist('all')}>Any</Chip>
-          <Chip active={assist === 'solo'} onClick={() => setAssist('solo')}>Solo</Chip>
-          {partnerOptions.map(p => (
-            <Chip key={p} active={assist === p} onClick={() => setAssist(p)}>{p}</Chip>
-          ))}
-        </FilterGroup>
-        <FilterGroup label="Position">
-          {(['all', 'corner', 'midscreen'] as PositionFilter[]).map((v) => (
-            <Chip key={v} active={position === v} onClick={() => setPosition(v)}>
-              {v === 'all' ? 'Any' : v.charAt(0).toUpperCase() + v.slice(1)}
-            </Chip>
-          ))}
-        </FilterGroup>
-        <FilterGroup label="Difficulty">
-          {(['all', 'beginner', 'intermediate', 'advanced'] as DifficultyFilter[]).map((v) => (
-            <Chip key={v} active={difficulty === v} onClick={() => setDifficulty(v)}>
-              {v === 'all' ? 'Any' : v === 'beginner' ? 'BEG' : v === 'intermediate' ? 'INT' : 'ADV'}
-            </Chip>
-          ))}
-        </FilterGroup>
-        {fuseOptions.length > 0 && (
-          <FilterGroup label="Fuse">
-            <Chip active={fuse === 'all'} onClick={() => setFuse('all')}>Any</Chip>
-            {fuseOptions.map(f => (
-              <Chip key={f} active={fuse === f} onClick={() => setFuse(f)}>{f}</Chip>
-            ))}
-          </FilterGroup>
-        )}
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6 p-4 rounded-xl" style={{ backgroundColor: '#12121e', border: '1px solid #222244' }}>
+        <Dropdown
+          label="Starter"
+          value={starter}
+          active={starter !== 'all'}
+          onChange={setStarter}
+          options={[
+            { value: 'all', label: 'Any' },
+            ...starterOptions.map(s => ({ value: s, label: s })),
+          ]}
+        />
+        <Dropdown
+          label="Difficulty"
+          value={difficulty}
+          active={difficulty !== 'all'}
+          onChange={(v) => setDifficulty(v as DifficultyFilter)}
+          options={[
+            { value: 'all', label: 'Any' },
+            { value: 'beginner', label: 'BEG' },
+            { value: 'intermediate', label: 'INT' },
+            { value: 'advanced', label: 'ADV' },
+          ]}
+        />
+        <Dropdown
+          label="Position"
+          value={position}
+          active={position !== 'all'}
+          onChange={(v) => setPosition(v as PositionFilter)}
+          options={[
+            { value: 'all', label: 'Any' },
+            { value: 'corner', label: 'Corner' },
+            { value: 'midscreen', label: 'Midscreen' },
+          ]}
+        />
+        <Dropdown
+          label="Meter"
+          value={meter}
+          active={meter !== 'all'}
+          onChange={(v) => setMeter(v as MeterFilter)}
+          options={[
+            { value: 'all', label: 'Any' },
+            { value: '0', label: '0 bars' },
+            { value: '1', label: '1 bar' },
+            { value: '2+', label: '2+ bars' },
+          ]}
+        />
+        <Dropdown
+          label="Assist"
+          value={assist}
+          active={assist !== 'all'}
+          onChange={setAssist}
+          options={[
+            { value: 'all', label: 'Any' },
+            { value: 'solo', label: 'Solo' },
+            ...partnerOptions.map(p => ({ value: p, label: p })),
+          ]}
+        />
+        <Dropdown
+          label="Fuse"
+          value={fuse}
+          active={fuse !== 'all'}
+          onChange={setFuse}
+          options={[
+            { value: 'all', label: 'Any' },
+            ...fuseOptions.map(f => ({ value: f, label: f })),
+          ]}
+        />
       </div>
 
       <p className="text-xs mb-4" style={{ color: '#7777aa' }}>
@@ -94,28 +130,48 @@ export function ComboListClient({ combos }: { combos: ComboEntry[] }) {
   );
 }
 
-function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function Dropdown({
+  label,
+  value,
+  active,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  active: boolean;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#7777aa' }}>{label}</span>
-      <div className="flex gap-1">{children}</div>
+    <div className="flex flex-col gap-1">
+      <span
+        className="text-[10px] font-bold uppercase tracking-widest"
+        style={{ color: active ? '#6c5ce7' : '#7777aa' }}
+      >
+        {label}
+      </span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          backgroundColor: '#1a1a2e',
+          border: `1px solid ${active ? '#6c5ce7' : '#222244'}`,
+          borderRadius: '8px',
+          color: '#e0e0f0',
+          fontSize: '13px',
+          fontWeight: 600,
+          padding: '6px 10px',
+          outline: 'none',
+          cursor: 'pointer',
+          width: '100%',
+          boxShadow: active ? '0 0 10px #6c5ce730' : 'none',
+        }}
+      >
+        {options.map(o => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
     </div>
-  );
-}
-
-function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      className="text-xs px-3 py-1 rounded-full font-medium transition-all"
-      style={{
-        backgroundColor: active ? '#6c5ce7' : 'transparent',
-        border: `1px solid ${active ? '#6c5ce7' : '#222244'}`,
-        color: active ? '#fff' : '#7777aa',
-        boxShadow: active ? '0 0 12px #6c5ce730' : 'none',
-      }}
-    >
-      {children}
-    </button>
   );
 }

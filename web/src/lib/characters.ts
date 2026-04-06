@@ -6,19 +6,18 @@ export interface WebCharacter {
 }
 
 export const characters: WebCharacter[] = [
-  { id: 'ahri', name: 'Ahri', imagePath: '/characters/Ahri_cs.png' },
-  { id: 'akali', name: 'Akali', imagePath: '/characters/akali.webp', comingSoon: true },
-  { id: 'blitzcrank', name: 'Blitzcrank', imagePath: '/characters/Blitzcrank_cs.png' },
-  { id: 'braum', name: 'Braum', imagePath: '/characters/Braum_cs.png' },
-  { id: 'caitlyn', name: 'Caitlyn', imagePath: '/characters/Caitlyn_cs.png' },
-  { id: 'darius', name: 'Darius', imagePath: '/characters/Darius_cs.png' },
-  { id: 'ekko', name: 'Ekko', imagePath: '/characters/Ekko_cs.png' },
-  { id: 'illaoi', name: 'Illaoi', imagePath: '/characters/Illaoi_cs.png' },
-  { id: 'jinx', name: 'Jinx', imagePath: '/characters/Jinx_cs.png' },
-  { id: 'teemo', name: 'Teemo', imagePath: '/characters/Teemo_cs.png' },
-  { id: 'vi', name: 'Vi', imagePath: '/characters/Vi_cs.png' },
-  { id: 'warwick', name: 'Warwick', imagePath: '/characters/Warwick_cs.png' },
-  { id: 'yasuo', name: 'Yasuo', imagePath: '/characters/Yasuo_cs.png' },
+  { id: 'ahri', name: 'Ahri', imagePath: '/characters/Ahri_Basic.png' },
+{ id: 'blitzcrank', name: 'Blitzcrank', imagePath: '/characters/Blitzcrank_Basic.png' },
+  { id: 'braum', name: 'Braum', imagePath: '/characters/Braum_Basic.png' },
+  { id: 'caitlyn', name: 'Caitlyn', imagePath: '/characters/Caitlyn_Basic.png' },
+  { id: 'darius', name: 'Darius', imagePath: '/characters/Darius_Basic.png' },
+  { id: 'ekko', name: 'Ekko', imagePath: '/characters/Ekko_Basic.png' },
+  { id: 'illaoi', name: 'Illaoi', imagePath: '/characters/Illaoi_Basic.png' },
+  { id: 'jinx', name: 'Jinx', imagePath: '/characters/Jinx_Basic.png' },
+  { id: 'teemo', name: 'Teemo', imagePath: '/characters/Teemo_Basic.png' },
+  { id: 'vi', name: 'Vi', imagePath: '/characters/Vi_Basic.png' },
+  { id: 'warwick', name: 'Warwick', imagePath: '/characters/Warwick_Basic.png' },
+  { id: 'yasuo', name: 'Yasuo', imagePath: '/characters/Yasuo_Basic.png' },
 ];
 
 export function getCharacter(id: string): WebCharacter | undefined {

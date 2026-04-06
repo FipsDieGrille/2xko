@@ -5,10 +5,21 @@ import { colors } from '../theme';
 
 interface Props {
   notation: string;
+  wrap?: boolean;
 }
 
-export function ComboNotation({ notation }: Props) {
+export function ComboNotation({ notation, wrap = false }: Props) {
   const tokens = parseCombo(notation);
+
+  if (wrap) {
+    return (
+      <View style={styles.wrapContainer}>
+        {tokens.map((token, i) => (
+          <TokenView key={i} token={token} />
+        ))}
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -58,6 +69,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 6,
+  },
+  wrapContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    backgroundColor: colors.surfaceLight,
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    marginVertical: 6,
   },
   icon: {
     width: ICON_SIZE,
