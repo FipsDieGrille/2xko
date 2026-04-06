@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FrameDataEntry } from '../../../../src/framedata/types';
+import { FrameDataEntry } from '../../../src/framedata/types';
 import { ComboNotation } from './ComboNotation';
 
 type SortKey = 'move' | 'attackLevel' | 'damage' | 'startup' | 'onHitMin' | 'onBlockMin' | 'meterGain';
