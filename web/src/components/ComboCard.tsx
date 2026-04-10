@@ -1,6 +1,8 @@
 'use client';
 
-import { ComboEntry } from '../../../src/combos/types';
+import { useState } from 'react';
+import { ComboEntry, ComboVariant } from '../../../src/combos/types';
+import { getFullNotation, getBestVariant } from '../../../src/combos/utils';
 import { ComboNotation } from './ComboNotation';
 
 const DIFFICULTY_LABEL: Record<string, string> = {
@@ -16,13 +18,26 @@ const DIFFICULTY_COLOR: Record<string, string> = {
 };
 
 export function ComboCard({ combo }: { combo: ComboEntry }) {
-  const dmg = combo.damage == null
-    ? '?'
-    : combo.damageMax
-    ? `${combo.damage}–${combo.damageMax}`
-    : `${combo.damage}`;
+  const hasVariants = combo.variants && combo.variants.length > 0;
 
-  const meterLabel = combo.meter === 0 ? '0 bars' : combo.meter === 1 ? '1 bar' : `${combo.meter} bars`;
+  // Sort variants by damage descending so index 0 = best
+  const sortedVariants = hasVariants
+    ? [...combo.variants!].sort((a, b) => (b.damage ?? 0) - (a.damage ?? 0))
+    : undefined;
+
+  const [variantIdx, setVariantIdx] = useState(0);
+  const activeVariant = sortedVariants?.[variantIdx];
+
+  const notation = getFullNotation(combo, activeVariant);
+  const damage = activeVariant ? activeVariant.damage : combo.damage;
+  const damageMax = activeVariant ? activeVariant.damageMax : combo.damageMax;
+  const hits = activeVariant ? activeVariant.hits : combo.hits;
+  const meter = activeVariant ? activeVariant.meter : (combo.meter ?? 0);
+  const meterGain = activeVariant ? activeVariant.meterGain : combo.meterGain;
+  const variantNotes = activeVariant?.notes;
+
+  const dmg = damage == null ? '?' : damageMax ? `${damage}–${damageMax}` : `${damage}`;
+  const meterLabel = meter === 0 ? '0 bars' : meter === 1 ? '1 bar' : `${meter} bars`;
   const posLabel = combo.position === 'anywhere' ? 'Anywhere' : combo.position.charAt(0).toUpperCase() + combo.position.slice(1);
   const diffColor = combo.difficulty ? DIFFICULTY_COLOR[combo.difficulty] : '#444466';
 
@@ -47,19 +62,46 @@ export function ComboCard({ combo }: { combo: ComboEntry }) {
           )}
         </div>
 
-        <ComboNotation notation={combo.notation} />
+        <ComboNotation notation={notation} />
 
         <div className="flex flex-wrap gap-1.5 mt-2">
           <Badge label={`${dmg} dmg`} />
-          <Badge label={`${meterLabel}`} />
+          {hits != null && <Badge label={`${hits} hits`} />}
+          <Badge label={meterLabel} />
           {combo.position !== 'anywhere' && <Badge label={posLabel} />}
           {combo.hasAssist && <Badge label={combo.partner ?? 'Assist'} accent />}
           {combo.fuse && <Badge label={combo.fuse} accent />}
-          {combo.meterGain != null && <Badge label={`+${combo.meterGain} meter`} />}
+          {meterGain != null && <Badge label={`+${meterGain} meter`} />}
         </div>
 
-        {combo.notes && (
-          <p className="mt-2 text-xs italic" style={{ color: '#7777aa' }}>{combo.notes}</p>
+        {(combo.notes || variantNotes) && (
+          <p className="mt-2 text-xs italic" style={{ color: '#7777aa' }}>
+            {[combo.notes, variantNotes].filter(Boolean).join(' — ')}
+          </p>
+        )}
+
+        {/* Variant pill tabs */}
+        {sortedVariants && sortedVariants.length > 1 && (
+          <div className="flex items-center gap-1.5 mt-3">
+            {sortedVariants.map((v, idx) => {
+              const isActive = idx === variantIdx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setVariantIdx(idx)}
+                  className="text-[10px] font-bold px-2.5 py-0.5 rounded-full transition-all"
+                  style={{
+                    color: isActive ? '#6c5ce7' : '#7777aa',
+                    backgroundColor: isActive ? '#6c5ce715' : '#1a1a2e',
+                    border: `1px solid ${isActive ? '#6c5ce7' : '#222244'}`,
+                    boxShadow: isActive ? '0 0 8px #6c5ce730' : 'none',
+                  }}
+                >
+                  {v.name ?? `v${idx + 1}`}
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

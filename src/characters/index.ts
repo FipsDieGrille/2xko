@@ -14,6 +14,11 @@ export const characters: Character[] = [
     icon: require('../../character icons/Ahri_Basic_profile.png'),
   },
   {
+    id: 'akali',
+    name: 'Akali',
+    icon: require('../../character icons/Akali_Basic_profile.png'),
+  },
+  {
     id: 'blitzcrank',
     name: 'Blitzcrank',
     icon: require('../../character icons/Blitzcrank_Basic_profile.png'),

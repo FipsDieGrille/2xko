@@ -11,6 +11,11 @@ export default function CombosLayout() {
         contentStyle: { backgroundColor: colors.background },
         headerBackTitle: 'Back',
       }}
-    />
+    >
+      <Stack.Screen
+        name="[characterId]"
+        dangerouslySingular={({ params }) => params?.characterId}
+      />
+    </Stack>
   );
 }

@@ -32,6 +32,9 @@ const iconMap: Record<string, ImageSourcePropType> = {
   'D': require('../../icons/D.png'),
   'JC': require('../../icons/JC.png'),
   'Plus': require('../../icons/Plus.png'),
+  'air': require('../../icons/air.png'),
+  '1hits': require('../../icons/1hits.png'),
+  '2hits': require('../../icons/2hits.png'),
   // Super meter bars
   '1-0': require('../../icons/1-0.png'),
   '1-1': require('../../icons/1-1.png'),

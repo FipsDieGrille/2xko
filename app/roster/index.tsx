@@ -21,21 +21,23 @@ const N = characters.length;
 
 const data: Character[] = [...characters, ...characters, ...characters];
 
-let lastIndex = 0;
+const lastIndexByMode: Record<string, number> = {};
 
 export default function RosterScreen() {
   const router = useRouter();
   const { mode } = useLocalSearchParams<{ mode?: string }>();
+  const modeKey = mode ?? 'combos';
+  const initialIndex = lastIndexByMode[modeKey] ?? 0;
   const { width: screenWidth } = useWindowDimensions();
   const paddingHorizontal = (screenWidth - CIRCLE_SIZE) / 2;
 
-  const scrollX = useRef(new Animated.Value((N + lastIndex) * ITEM_SIZE)).current;
+  const scrollX = useRef(new Animated.Value((N + initialIndex) * ITEM_SIZE)).current;
   const flatListRef = useRef<Animated.FlatList<Character>>(null);
-  const [currentIndex, setCurrentIndex] = useState(lastIndex);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const onLayout = useCallback(() => {
-    flatListRef.current?.scrollToIndex({ index: N + lastIndex, animated: false });
-  }, []);
+    flatListRef.current?.scrollToIndex({ index: N + initialIndex, animated: false });
+  }, [initialIndex]);
 
   const onMomentumScrollEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -43,7 +45,7 @@ export default function RosterScreen() {
       const index = Math.round(offsetX / ITEM_SIZE);
       const wrapped = index % N;
       setCurrentIndex(wrapped);
-      lastIndex = wrapped;
+      lastIndexByMode[modeKey] = wrapped;
 
       if (index < N) {
         flatListRef.current?.scrollToIndex({ index: index + N, animated: false });
@@ -54,15 +56,16 @@ export default function RosterScreen() {
     [],
   );
 
-  const handleSelect = useCallback(() => {
-    lastIndex = currentIndex;
-    const characterId = characters[currentIndex].id;
+  const handleSelect = useCallback((tappedIndex?: number) => {
+    const index = tappedIndex ?? currentIndex;
+    lastIndexByMode[modeKey] = index;
+    const characterId = characters[index].id;
     if (mode === 'framedata') {
       router.push({ pathname: '/framedata/[characterId]', params: { characterId } });
     } else {
       router.push({ pathname: '/combos/[characterId]', params: { characterId } });
     }
-  }, [currentIndex, router, mode]);
+  }, [currentIndex, router, mode, modeKey]);
 
   return (
     <View style={styles.container}>
@@ -122,7 +125,7 @@ export default function RosterScreen() {
             <View style={{ width: ITEM_SIZE }}>
               <View style={{ height: CIRCLE_SIZE, flexDirection: 'row', alignItems: 'center' }}>
                 <Animated.View style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE, transform: [{ scale }], opacity }}>
-                  <TouchableOpacity onPress={handleSelect} activeOpacity={0.85} style={styles.circleOutline}>
+                  <TouchableOpacity onPress={() => handleSelect(index % N)} activeOpacity={0.85} style={styles.circleOutline}>
                     <Image source={item.icon!} style={styles.circle} resizeMode="contain" />
                   </TouchableOpacity>
                 </Animated.View>
@@ -136,7 +139,7 @@ export default function RosterScreen() {
         }}
       />
 
-      <TouchableOpacity style={styles.selectBtn} onPress={handleSelect} activeOpacity={0.8}>
+      <TouchableOpacity style={styles.selectBtn} onPress={() => handleSelect()} activeOpacity={0.8}>
         <Text style={styles.selectText}>Select</Text>
       </TouchableOpacity>
     </View>

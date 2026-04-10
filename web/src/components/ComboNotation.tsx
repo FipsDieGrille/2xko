@@ -15,66 +15,111 @@ const TOKEN_MAP: Record<string, string> = {
   '1': '/icons/1.png', '11': '/icons/11.png', '3': '/icons/3.png', '33': '/icons/33.png',
 };
 
-function tokenize(notation: string): string[] {
-  const tokens: string[] = [];
+const HITS_MAP: Record<string, string> = {
+  '(1)': '/icons/1hits.png',
+  '(2)': '/icons/2hits.png',
+};
+
+interface Token {
+  type: 'icon' | 'hits' | 'separator' | 'text';
+  value: string;
+  icon?: string;
+}
+
+function tokenize(notation: string): Token[] {
+  const tokens: Token[] = [];
   let i = 0;
   while (i < notation.length) {
     if (notation[i] === ' ') { i++; continue; }
 
+    // Hold notation: [X] or {X} — use hold icon (e.g. [H] → HH.png, [9] → 99.png)
     if (notation[i] === '[' || notation[i] === '{') {
       const close = notation[i] === '[' ? ']' : '}';
       const end = notation.indexOf(close, i);
       if (end !== -1) {
-        tokens.push(notation.slice(i, end + 1));
+        const inner = notation.slice(i + 1, end);
+        const holdKey = inner + inner; // H→HH, S1→S1S1, 9→99, etc.
+        const icon = TOKEN_MAP[holdKey] ?? TOKEN_MAP[inner];
+        tokens.push({ type: icon ? 'icon' : 'text', value: notation.slice(i, end + 1), icon });
         i = end + 1;
         continue;
       }
     }
 
+    // Hit confirmation: (1) or (2)
+    if (notation[i] === '(') {
+      const hitMatch = notation.slice(i).match(/^\([12]\)/);
+      if (hitMatch) {
+        tokens.push({ type: 'hits', value: hitMatch[0], icon: HITS_MAP[hitMatch[0]] });
+        i += hitMatch[0].length;
+        continue;
+      }
+    }
+
+    // J prefix (aerial) — must be followed by a token (not standalone J)
+    if ((notation[i] === 'J' || notation[i] === 'j') && i + 1 < notation.length) {
+      const next = notation[i + 1];
+      // J followed by a letter (move) or [ or { or digit (like J2H)
+      if (next && next !== ' ' && next !== '>' && next !== '~' && next !== ',' && next !== 'C') {
+        tokens.push({ type: 'icon', value: 'air', icon: '/icons/air.png' });
+        i += 1;
+        continue;
+      }
+    }
+
+    // Standard token matching (longest first)
     let matched = false;
     for (let len = 4; len >= 1; len--) {
       const candidate = notation.slice(i, i + len);
       if (TOKEN_MAP[candidate]) {
-        tokens.push(candidate);
+        tokens.push({ type: 'icon', value: candidate, icon: TOKEN_MAP[candidate] });
         i += len;
         matched = true;
         break;
       }
     }
     if (!matched) {
-      tokens.push(notation[i]);
+      const ch = notation[i];
+      const isSep = ['>','~',','].includes(ch) || notation.slice(i).startsWith('dl');
+      tokens.push({ type: isSep ? 'separator' : 'text', value: ch });
       i++;
     }
   }
   return tokens;
 }
 
-export function ComboNotation({ notation }: { notation: string }) {
+export function ComboNotation({ notation, compact }: { notation: string; compact?: boolean }) {
   const tokens = tokenize(notation);
+  const size = compact ? 16 : 24;
 
   return (
-    <div className="flex flex-wrap items-center gap-0.5 my-2">
+    <div className={`flex flex-wrap items-center gap-0.5 ${compact ? '' : 'my-2'}`}>
       {tokens.map((token, i) => {
-        const stripped = token.replace(/[\[\]{}\(\)]/g, '');
-        const icon = TOKEN_MAP[stripped];
-        const isHold = token.startsWith('[') || token.startsWith('{');
-
-        if (icon) {
+        // Hit confirmation overlay — merge with previous icon
+        if (token.type === 'hits' && token.icon && !compact) {
           return (
-            <span key={i} className={`inline-flex items-center ${isHold ? 'opacity-70 ring-1 ring-white/20 rounded' : ''}`}>
-              <Image src={icon} alt={stripped} width={24} height={24} className="inline-block" />
+            <span key={i} className="relative inline-flex items-center" style={{ marginLeft: -10 }}>
+              <Image src={token.icon} alt={token.value} width={16} height={16} className="inline-block" style={{ position: 'relative', top: 9 }} />
             </span>
           );
         }
 
-        const sep = ['>','~',','].includes(token) || token.startsWith('dl') || token === 'j';
+        if (token.type === 'icon' && token.icon) {
+          const isAir = token.value === 'air';
+          return (
+            <span key={i} className="inline-flex items-center" style={isAir ? { marginRight: compact ? -2 : -4 } : undefined}>
+              <Image src={token.icon} alt={token.value} width={size} height={size} className="inline-block" />
+            </span>
+          );
+        }
+
         return (
           <span
             key={i}
             className="text-xs font-mono"
-            style={{ color: sep ? '#7777aa' : '#eeeef4' }}
+            style={{ color: token.type === 'separator' ? '#7777aa' : '#eeeef4' }}
           >
-            {token}
+            {token.value}
           </span>
         );
       })}

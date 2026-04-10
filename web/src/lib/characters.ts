@@ -7,7 +7,8 @@ export interface WebCharacter {
 
 export const characters: WebCharacter[] = [
   { id: 'ahri', name: 'Ahri', imagePath: '/characters/Ahri_Basic.png' },
-{ id: 'blitzcrank', name: 'Blitzcrank', imagePath: '/characters/Blitzcrank_Basic.png' },
+  { id: 'akali', name: 'Akali', imagePath: '/characters/Akali_Basic.png' },
+  { id: 'blitzcrank', name: 'Blitzcrank', imagePath: '/characters/Blitzcrank_Basic.png' },
   { id: 'braum', name: 'Braum', imagePath: '/characters/Braum_Basic.png' },
   { id: 'caitlyn', name: 'Caitlyn', imagePath: '/characters/Caitlyn_Basic.png' },
   { id: 'darius', name: 'Darius', imagePath: '/characters/Darius_Basic.png' },

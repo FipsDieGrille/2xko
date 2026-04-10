@@ -11,6 +11,11 @@ export default function FrameDataLayout() {
         contentStyle: { backgroundColor: colors.background },
         headerBackTitle: 'Back',
       }}
-    />
+    >
+      <Stack.Screen
+        name="[characterId]"
+        dangerouslySingular={({ params }) => params?.characterId}
+      />
+    </Stack>
   );
 }

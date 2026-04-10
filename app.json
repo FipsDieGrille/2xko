@@ -4,10 +4,38 @@
     "slug": "2xko-coach",
     "version": "1.0.0",
     "scheme": "2xko-coach",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
     "newArchEnabled": true,
+    "ios": {
+      "icon": "./assets/icon.png",
+      "bundleIdentifier": "2xkohub",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#080810"
+      }
+    },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "077f0081-95cc-4d23-a1a1-ae883108598c"
+      }
+    }
   }
 }

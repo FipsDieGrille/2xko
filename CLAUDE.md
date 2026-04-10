@@ -36,32 +36,50 @@ Character registries are separate: `src/characters/index.ts` (RN with `require()
 
 ## Characters
 
-13 characters: Ahri, Akali (coming soon), Blitzcrank, Braum, Caitlyn, Darius, Ekko, Illaoi, Jinx, Teemo, Vi, Warwick, Yasuo.
+13 characters: Ahri, Akali, Blitzcrank, Braum, Caitlyn, Darius, Ekko, Illaoi, Jinx, Teemo, Vi, Warwick, Yasuo.
 
-Only Caitlyn and Ekko have combo data so far. Others have empty arrays.
+Only Akali has combo data so far. Others have empty arrays.
 
 ## Combo Data Model
 
-Defined in `src/combos/types.ts`:
+Defined in `src/combos/types.ts`. Combos have 2-3 parts: **starter** (sequence), **combo** (body), and optional **ending** (variants).
 
 ```typescript
+interface ComboVariant {
+  ending: string;              // notation for the ending portion
+  damage: number | null;
+  damageMax?: number;
+  hits?: number;
+  meter: number;
+  meterGain?: number;
+  notes?: string;
+}
+
 interface ComboEntry {
   id: string;
   name: string;
-  notation: string;           // e.g. 'M > 2H > 9M > H > S2'
-  difficulty?: 'beginner' | 'intermediate' | 'advanced';  // optional
-  position: 'anywhere' | 'corner' | 'midscreen';
-  damage: number | null;
+  starter: string;             // starter sequence: 'L > L > 2L' or 'M'
+  combo: string;               // shared body notation
+  variants?: ComboVariant[];   // present when combo branches into different endings
+
+  // Single-combo metadata (used when no variants)
+  damage?: number | null;
   damageMax?: number;
-  meter: number;              // bars required
+  hits?: number;
+  meter?: number;
   meterGain?: number;
-  starter: string;            // first input (e.g. 'M', '2L')
+
+  // Always at combo level
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  position: 'anywhere' | 'corner' | 'midscreen';
   hasAssist: boolean;
-  partner?: string;           // tag partner name (e.g. 'Jinx')
-  fuse?: string;              // required fuse (e.g. 'Double Down')
+  partner?: string;
+  fuse?: string;
   notes?: string;
 }
 ```
+
+Utility helpers in `src/combos/utils.ts`: `getFullNotation()`, `getBestVariant()`, `getComboDamage()`, `getComboHits()`, `getComboMeter()`.
 
 Each character has a file in `src/combos/{character}.ts` exporting an array. These are registered in `src/combos/index.ts`.
 
@@ -70,31 +88,21 @@ Each character has a file in `src/combos/{character}.ts` exporting an array. The
 1. Add the TS file: `src/combos/{name}.ts`
 2. Import and register in `src/combos/index.ts`
 
-## Converting Combos from CSV
+## Converting Combos from Source Files
 
-The user provides combo data as semicolon-delimited CSV files in `2xko_combo_sources/`. CSV columns:
+Combo source data lives in `2xko_combo_sources/` as markdown files. Full format documentation in `2xko_combo_sources/NOTATION_REFERENCE.md`.
 
-```
-Character; Notation; Position; Bar Use Point Char; Damage; Difficulty; Assist Character; Fuse; Bar Use Assist Char; Bar Use Total
-```
+### Key conversion rules
 
-### Conversion rules
-
-- **Notation**: Uppercase the entire string, replace commas with ` > ` separators. CSV `m, 2h, 9m,h,s2` becomes `M > 2H > 9M > H > S2`
-- **Position**: Empty or missing = `'anywhere'`, "Corner" = `'corner'`
-- **Meter**: Use "Bar Use Total" column (last column)
-- **Difficulty**: Leave undefined if empty in CSV — do NOT auto-generate
-- **Assist**: If "Assist Character" column has a value, set `hasAssist: true` and `partner` to that value
-- **Fuse**: If "Fuse" column has a value, set `fuse` to that value
-- **Damage**: Use as-is, null if empty
-- **Name**: Auto-generate from context: "0-Bar BnB", "1-Bar Route", "Corner Route", "{Char} + {Partner}", etc.
-- **Starter**: First token of the converted notation
-- **Duplicates**: Remove exact notation duplicates
-
-### CSV quirks
-
-- Files may use `\r` line endings (Mac Excel export) — split on `\r` not `\n`
-- All data may appear on one line when read naively
+- **Notation**: Uppercase the entire string, replace commas with ` > ` separators
+- **Position**: From header: "Any location" = `'anywhere'`, "Corner" = `'corner'`
+- **Fuse**: From sub-header: "Normal" = none, other = fuse value
+- **Starter**: Full sequence (e.g. `'L > L > 2L'`), not just first move
+- **Variants**: Branching combos (indented `~` lines) become `ComboVariant[]`; direct bullets = separate combos
+- **Metadata**: `/damage .hits bar_point-bar_assist`
+- **Meter**: Sum of bar_point + bar_assist; 0 if not listed
+- **Hits**: Number after `.` (e.g. `.27` = 27 hits)
+- **Difficulty**: Leave undefined if not specified
 
 ## Combo Notation System
 

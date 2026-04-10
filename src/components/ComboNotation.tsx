@@ -36,11 +36,20 @@ export function ComboNotation({ notation, wrap = false }: Props) {
 }
 
 function TokenView({ token }: { token: ComboToken }) {
-  if (token.type === 'icon' && token.icon) {
-    return <Image source={token.icon} style={styles.icon} resizeMode="contain" />;
+  if (token.type === 'hits' && token.icon) {
+    return (
+      <View style={styles.hitsContainer}>
+        <Image source={token.icon} style={styles.hitsIcon} resizeMode="contain" />
+      </View>
+    );
   }
 
-  const isSmallText = token.value === 'j.' || token.value === 'dl.' || token.value === '~';
+  if (token.type === 'icon' && token.icon) {
+    const isAir = token.value === 'air';
+    return <Image source={token.icon} style={[styles.icon, isAir && styles.airIcon]} resizeMode="contain" />;
+  }
+
+  const isSmallText = token.value === 'dl.' || token.value === '~';
   const isSeparator = token.value.trim() === '>';
 
   return (
@@ -84,6 +93,18 @@ const styles = StyleSheet.create({
     width: ICON_SIZE,
     height: ICON_SIZE,
     marginHorizontal: 1,
+  },
+  airIcon: {
+    marginRight: -4,
+  },
+  hitsContainer: {
+    alignSelf: 'flex-end',
+    marginLeft: -12,
+    marginBottom: -6,
+  },
+  hitsIcon: {
+    width: 18,
+    height: 18,
   },
   text: {
     color: colors.text,

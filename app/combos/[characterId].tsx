@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { getCombos } from '../../src/combos';
-import { ComboEntry } from '../../src/combos/types';
+import { ComboEntry, ComboVariant } from '../../src/combos/types';
+import { getFullNotation, getBestVariant } from '../../src/combos/utils';
 import { ComboNotation } from '../../src/components/ComboNotation';
 import { colors } from '../../src/theme';
 
@@ -112,9 +113,22 @@ export default function ComboListScreen() {
 
   const filtered = useMemo(() => {
     return allCombos.filter((c) => {
-      if (meterFilter === '0' && c.meter !== 0) return false;
-      if (meterFilter === '1' && c.meter !== 1) return false;
-      if (meterFilter === '2+' && c.meter < 2) return false;
+      if (meterFilter !== 'all') {
+        if (c.variants && c.variants.length > 0) {
+          const anyMatch = c.variants.some((v) => {
+            if (meterFilter === '0') return v.meter === 0;
+            if (meterFilter === '1') return v.meter === 1;
+            if (meterFilter === '2+') return v.meter >= 2;
+            return true;
+          });
+          if (!anyMatch) return false;
+        } else {
+          const m = c.meter ?? 0;
+          if (meterFilter === '0' && m !== 0) return false;
+          if (meterFilter === '1' && m !== 1) return false;
+          if (meterFilter === '2+' && m < 2) return false;
+        }
+      }
       if (assistFilter === 'solo' && c.hasAssist) return false;
       if (assistFilter !== 'all' && assistFilter !== 'solo' && c.partner !== assistFilter) return false;
       if (positionFilter !== 'all' && c.position !== positionFilter && c.position !== 'anywhere') return false;
@@ -269,13 +283,28 @@ function ComboCard({ combo }: { combo: ComboEntry }) {
   const [expanded, setExpanded] = useState(false);
   const lastTap = useRef<number>(0);
 
-  const dmg = combo.damage == null
-    ? '?'
-    : combo.damageMax
-    ? `${combo.damage}–${combo.damageMax}`
-    : `${combo.damage}`;
+  const hasVariants = combo.variants && combo.variants.length > 0;
+  const sortedVariants = hasVariants
+    ? [...combo.variants!].sort((a, b) => (b.damage ?? 0) - (a.damage ?? 0))
+    : undefined;
+  const [variantIdx, setVariantIdx] = useState(0);
+  const activeVariant = sortedVariants?.[variantIdx];
 
-  const meterLbl = combo.meter === 0 ? '0 bars' : combo.meter === 1 ? '1 bar' : `${combo.meter} bars`;
+  const notation = getFullNotation(combo, activeVariant);
+  const damage = activeVariant ? activeVariant.damage : combo.damage;
+  const damageMax = activeVariant ? activeVariant.damageMax : combo.damageMax;
+  const hits = activeVariant ? activeVariant.hits : combo.hits;
+  const meter = activeVariant ? activeVariant.meter : (combo.meter ?? 0);
+  const meterGainVal = activeVariant ? activeVariant.meterGain : combo.meterGain;
+  const variantNotes = activeVariant?.notes;
+
+  const dmg = damage == null
+    ? '?'
+    : damageMax
+    ? `${damage}–${damageMax}`
+    : `${damage}`;
+
+  const meterLbl = meter === 0 ? '0 bars' : meter === 1 ? '1 bar' : `${meter} bars`;
   const posLabel = combo.position === 'anywhere' ? 'Anywhere' : combo.position.charAt(0).toUpperCase() + combo.position.slice(1);
   const diffColor = combo.difficulty ? DIFFICULTY_COLOR[combo.difficulty] : '#444466';
 
@@ -299,20 +328,40 @@ function ComboCard({ combo }: { combo: ComboEntry }) {
       </View>
 
       <View onTouchEnd={handleDoubleTap}>
-        <ComboNotation notation={combo.notation} wrap={expanded} />
+        <ComboNotation notation={notation} wrap={expanded} />
       </View>
 
       <View style={styles.badges}>
         <Badge icon="💥" label={`${dmg} dmg`} />
+        {hits != null && <Badge icon="🎯" label={`${hits} hits`} />}
         <Badge icon="⚡" label={meterLbl} />
         {combo.position !== 'anywhere' && <Badge icon="📍" label={posLabel} />}
         {combo.hasAssist && <Badge icon="🤝" label={combo.partner ?? 'Assist'} />}
         {combo.fuse && <Badge icon="🔗" label={combo.fuse} />}
-        {combo.meterGain != null && <Badge icon="📈" label={`+${combo.meterGain} meter`} />}
+        {meterGainVal != null && <Badge icon="📈" label={`+${meterGainVal} meter`} />}
       </View>
 
-      {combo.notes != null && (
-        <Text style={styles.notes}>{combo.notes}</Text>
+      {(combo.notes || variantNotes) && (
+        <Text style={styles.notes}>
+          {[combo.notes, variantNotes].filter(Boolean).join(' — ')}
+        </Text>
+      )}
+
+      {sortedVariants && sortedVariants.length > 1 && (
+        <View style={styles.variantBar}>
+          {sortedVariants.map((_, idx) => (
+            <TouchableOpacity
+              key={idx}
+              onPress={() => setVariantIdx(idx)}
+              style={[styles.variantPill, idx === variantIdx && styles.variantPillActive]}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.variantPillText, idx === variantIdx && styles.variantPillTextActive]}>
+                {sortedVariants[idx].name ?? `v${idx + 1}`}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       )}
     </View>
   );
@@ -490,6 +539,32 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 6,
     fontStyle: 'italic',
+  },
+  variantBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 10,
+  },
+  variantPill: {
+    backgroundColor: colors.surfaceLight,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  variantPillActive: {
+    borderColor: colors.accent,
+    backgroundColor: `${colors.accent}15`,
+  },
+  variantPillText: {
+    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  variantPillTextActive: {
+    color: colors.accent,
   },
   empty: {
     color: colors.textSecondary,

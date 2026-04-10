@@ -1,3 +1,92 @@
 import { ComboEntry } from './types';
 
-export const akaliCombos: ComboEntry[] = [];
+export const akaliCombos: ComboEntry[] = [
+  // === Any location — Normal ===
+  {
+    id: 'akali-huey-bnb',
+    name: 'Huey BnB',
+    starter: 'M',
+    combo: '2M > H(2) > 3H > 9 > JH > J2H > M > 2M > H(2) > 9 > JM(2) > JH > JS2 > 9 > J[H] > D > M > 2H > 9 > JH > JS2',
+    damage: 438,
+    hits: 27,
+    meter: 0,
+    position: 'anywhere',
+    hasAssist: false,
+  },
+  {
+    id: 'akali-daryus-p-bnb',
+    name: 'Daryus P BnB',
+    starter: 'M',
+    combo: 'H > 2H > 9 > JM > JH > JM > JH > S2',
+    damage: 306,
+    hits: 12,
+    meter: 0,
+    position: 'anywhere',
+    hasAssist: false,
+  },
+  {
+    id: 'akali-ll2l-routes',
+    name: 'L L 2L Routes',
+    starter: 'L > L > 2L',
+    combo: 'S1 > S1 > M > 2M > H(2) > 2H',
+    position: 'anywhere',
+    hasAssist: false,
+    variants: [
+      {
+        name: 'basic',
+        ending: '9 > JM > JH > JM > JH > JS2',
+        damage: 283,
+        hits: 18,
+        meter: 0,
+      },
+      {
+        name: 'super',
+        ending: 'H(2) > S2 > S2+M',
+        damage: 364,
+        hits: 14,
+        meter: 1,
+      },
+      {
+        name: 'shroud',
+        ending: 'H(2) > S2',
+        damage: 244,
+        hits: 14,
+        meter: 0,
+      },
+    ],
+  },
+  {
+    id: 'akali-2h-route-1',
+    name: '2H Aerial Route',
+    starter: '2H',
+    combo: '9 > J2H > JH > J2H > JH > JS2',
+    damage: 325,
+    hits: 9,
+    meter: 0,
+    position: 'anywhere',
+    hasAssist: false,
+  },
+  {
+    id: 'akali-2h-route-2',
+    name: '2H Light Aerial',
+    starter: '2H',
+    combo: '9 > JM(1) > JH > JM(1) > JH > JS2',
+    damage: 261,
+    hits: 9,
+    meter: 0,
+    position: 'anywhere',
+    hasAssist: false,
+  },
+  // === Any location — Twilight Shroud ===
+  {
+    id: 'akali-tw-s2-bnb',
+    name: 'Twilight Shroud BnB',
+    starter: 'S2',
+    combo: 'M > 2M > H(2) > 2H > 9 > JM > JH > JM > JH > JS2',
+    damage: 408,
+    hits: 18,
+    meter: 0,
+    position: 'anywhere',
+    hasAssist: false,
+  },
+];
