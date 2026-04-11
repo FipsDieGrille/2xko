@@ -1,0 +1,27 @@
+# Dependencies & build artifacts
+node_modules
+.expo
+dist
+web-build
+.git
+
+# Web app (not needed for mobile builds)
+web
+
+# Large asset directories not used at runtime
+/2XKO Community Asset Kit*/
+/2xko_combo_sources
+/Frame data
+/characters
+/other images
+# Secrets & misc
+.env
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+.DS_Store
+.claude
+CLAUDE.md
