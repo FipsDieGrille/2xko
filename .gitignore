@@ -12,3 +12,6 @@ dist/
 web-build/
 .DS_Store
 2XKO Community Asset Kit*/
+
+# Discord chat exports (too large for git)
+coaches/bots/

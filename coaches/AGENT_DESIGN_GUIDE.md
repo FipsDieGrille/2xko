@@ -258,8 +258,11 @@ The agent always knows today's date from the system context, so it can compare. 
 
 | Character | CLI Agent | In-App Agent | Color | Avatar |
 |-----------|-----------|--------------|-------|--------|
+| Ahri | `~/.claude/agents/Ahri.md` | -- (CLI only) | pink | fox |
 | Akali | `~/.claude/agents/akali.md` | `src/agents/akali.ts` | green / #84c441 | ninja |
+| Blitzcrank | `~/.claude/agents/Blitzcrank.md` | -- (CLI only) | blue | robot |
 | Caitlyn | `~/.claude/agents/caitlyn.md` | `src/agents/caitlyn.ts` | purple / #7c5cbf | gun |
+| Zilean | `~/.claude/agents/Zilean.md` | -- (CLI only) | yellow / #c8a84e | hourglass |
 
 ---
 
